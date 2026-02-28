@@ -148,7 +148,7 @@ const CreateItemModal = ({ onClose, onItemCreated }) => {
       formData.append("folder", folder);
       const uploadRes = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/auto/upload`, { method: "POST", body: formData });
       const uploadData = await uploadRes.json();
-      console.log(uploadData);
+
       if (uploadData.secure_url) {
         return { public_id: uploadData.public_id, url: uploadData.secure_url, originalName: file.name, size: file.size, mimeType: file.type };
       }

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { itemService } from "../services/itemService";
+import toast from "react-hot-toast";
 
 const STYLES = `
   @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap');
@@ -144,7 +145,7 @@ const Dashboard = () => {
         setStats({ total: data.length, notes, links, files });
         setRecent(data.slice(0, 5));
       } catch (error) {
-        console.error(error);
+        toast.error(error);
       } finally {
         setLoading(false);
       }

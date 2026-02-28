@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { itemService } from "../services/itemService.js";
 import DeletedItemList from "../components/Bin/DeletedItemList";
+import toast from "react-hot-toast";
 
 const STYLES = `
   @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap');
@@ -72,7 +73,8 @@ const BinPage = () => {
       const { data } = await itemService.getTrashItems();
       setDeletedItems(data);
     } catch (error) {
-      console.error(error);
+      toast.error(error);
+      // console.error(error);
     } finally {
       setLoading(false);
     }
