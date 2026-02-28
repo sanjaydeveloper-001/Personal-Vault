@@ -9,9 +9,10 @@ const Signup = () => {
   const [showPass, setShowPass] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [agreed, setAgreed] = useState(false);
+  const [loading, setLoading] = useState(false);
   const { register } = useAuth();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (password !== confirmPassword) {
       alert("Passwords do not match");
@@ -21,7 +22,12 @@ const Signup = () => {
       alert("Please agree to the Privacy Policy and Terms & Conditions");
       return;
     }
-    register(username, password);
+    setLoading(true);
+    try {
+      await register(username, password);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const strength = password.length === 0 ? 0 : password.length < 6 ? 1 : password.length < 10 ? 2 : 3;
@@ -61,6 +67,7 @@ const Signup = () => {
           box-shadow: 0 0 0 3px rgba(251,191,36,0.08);
         }
         .auth-input::placeholder { color: #4b5563; }
+        .auth-input:disabled { opacity: 0.6; cursor: not-allowed; }
 
         .auth-label {
           display: block;
@@ -83,13 +90,15 @@ const Signup = () => {
           border: none;
           cursor: pointer;
           font-family: 'DM Sans', sans-serif;
+          position: relative;
+          overflow: hidden;
         }
         .cta-btn:hover:not(:disabled) {
           transform: translateY(-1px);
           box-shadow: 0 8px 30px rgba(245,158,11,0.35);
         }
-        .cta-btn:active { transform: translateY(0); }
-        .cta-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+        .cta-btn:active:not(:disabled) { transform: translateY(0); }
+        .cta-btn:disabled { opacity: 0.55; cursor: not-allowed; transform: none !important; }
 
         .back-btn {
           display: inline-flex; align-items: center; gap: 6px;
@@ -105,13 +114,11 @@ const Signup = () => {
         }
         .eye-btn:hover { color: #9ca3af; }
 
-        /* ── Checkbox ── */
         .agree-row {
           display: flex; align-items: flex-start; gap: 10px;
           margin-bottom: 22px;
           cursor: pointer;
         }
-        
         .agree-box {
           width: 18px; height: 18px; border-radius: 5px; flex-shrink: 0;
           border: 1.5px solid rgba(255,255,255,0.15);
@@ -135,6 +142,33 @@ const Signup = () => {
           to { opacity: 1; transform: translateY(0); }
         }
         .fade-up { animation: fadeUp 0.5s ease forwards; }
+
+        /* Spinner */
+        @keyframes spin {
+          to { transform: rotate(360deg); }
+        }
+        .spinner {
+          width: 16px;
+          height: 16px;
+          border: 2px solid rgba(255,255,255,0.35);
+          border-top-color: white;
+          border-radius: 50%;
+          animation: spin 0.7s linear infinite;
+          flex-shrink: 0;
+        }
+
+        /* Shimmer sweep on loading button */
+        @keyframes shimmer {
+          0% { transform: translateX(-100%); }
+          100% { transform: translateX(200%); }
+        }
+        .cta-btn.loading::after {
+          content: '';
+          position: absolute;
+          inset: 0;
+          background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.15) 50%, transparent 100%);
+          animation: shimmer 1.2s ease-in-out infinite;
+        }
       `}</style>
 
       <div className="grid-bg fixed inset-0 pointer-events-none" />
@@ -179,7 +213,7 @@ const Signup = () => {
             <div className="mb-5">
               <label className="auth-label">Username</label>
               <input className="auth-input" type="text" placeholder="Choose a username"
-                value={username} onChange={(e) => setUsername(e.target.value)} required />
+                value={username} onChange={(e) => setUsername(e.target.value)} required disabled={loading} />
             </div>
 
             {/* Password */}
@@ -189,8 +223,8 @@ const Signup = () => {
                 <input className="auth-input" style={{ paddingRight: "44px" }}
                   type={showPass ? "text" : "password"}
                   placeholder="Create a strong password"
-                  value={password} onChange={(e) => setPassword(e.target.value)} required />
-                <button type="button" className="eye-btn" onClick={() => setShowPass(!showPass)}>
+                  value={password} onChange={(e) => setPassword(e.target.value)} required disabled={loading} />
+                <button type="button" className="eye-btn" onClick={() => setShowPass(!showPass)} disabled={loading}>
                   {showPass
                     ? <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
                     : <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
@@ -221,8 +255,8 @@ const Signup = () => {
                   style={{ paddingRight: "44px", borderColor: confirmPassword && confirmPassword !== password ? "rgba(239,68,68,0.5)" : undefined }}
                   type={showConfirm ? "text" : "password"}
                   placeholder="Repeat your password"
-                  value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required />
-                <button type="button" className="eye-btn" onClick={() => setShowConfirm(!showConfirm)}>
+                  value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required disabled={loading} />
+                <button type="button" className="eye-btn" onClick={() => setShowConfirm(!showConfirm)} disabled={loading}>
                   {showConfirm
                     ? <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
                     : <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
@@ -234,10 +268,11 @@ const Signup = () => {
               )}
             </div>
 
-            {/* ── Agree checkbox ── */}
+            {/* Agree checkbox */}
             <div
               className={`agree-row${agreed ? " checked" : ""}`}
-              onClick={() => setAgreed(!agreed)}
+              onClick={() => !loading && setAgreed(!agreed)}
+              style={{ opacity: loading ? 0.5 : 1, pointerEvents: loading ? "none" : "auto" }}
             >
               <div className={`agree-box${agreed ? " checked" : ""}`}>
                 {agreed && (
@@ -254,8 +289,17 @@ const Signup = () => {
               </p>
             </div>
 
-            <button type="submit" className="cta-btn" disabled={!agreed}>
-              Create Account
+            <button type="submit" className={`cta-btn${loading ? " loading" : ""}`} disabled={!agreed || loading}>
+              <span style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "8px" }}>
+                {loading ? (
+                  <>
+                    <span className="spinner" />
+                    Creating vault…
+                  </>
+                ) : (
+                  "Create Account"
+                )}
+              </span>
             </button>
           </form>
 
