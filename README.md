@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 # 🔐 VaultNotes – Sovereign Digital Vault
+=======
+# 🔐 VaultNotes – Digital Vault
+>>>>>>> 17e35ecebbf17e39c37aa6431bce1dad8dec4df4
 
 > Your encrypted sanctuary for notes, links & files — with zero email friction, per-item passwords, and permanent shareable links.
 
@@ -272,8 +276,13 @@ Typography:
 ## 🔧 Local Development
 
 ```bash
+<<<<<<< HEAD
 git clone https://github.com/yourname/vaultnotes.git
 cd vaultnotes
+=======
+https://github.com/sanjaydeveloper-001/Personal-Vault.git
+cd Personal-Vault
+>>>>>>> 17e35ecebbf17e39c37aa6431bce1dad8dec4df4
 
 npm install
 cd client && npm install
