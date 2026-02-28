@@ -109,6 +109,18 @@ const Login = () => {
           margin: 24px 0;
         }
 
+        .forgot-link {
+          display: inline-flex;
+          align-items: center;
+          gap: 5px;
+          color: #4b5563;
+          font-size: 0.8rem;
+          text-decoration: none;
+          transition: color 0.2s;
+          letter-spacing: 0.01em;
+        }
+        .forgot-link:hover { color: #fbbf24; }
+
         @keyframes fadeUp {
           from { opacity: 0; transform: translateY(20px); }
           to { opacity: 1; transform: translateY(0); }
@@ -167,7 +179,7 @@ const Login = () => {
               />
             </div>
 
-            <div className="mb-7">
+            <div className="mb-2">
               <label className="auth-label">Password</label>
               <div style={{ position: "relative" }}>
                 <input
@@ -187,6 +199,17 @@ const Login = () => {
                   }
                 </button>
               </div>
+            </div>
+
+            {/* Forgot password link */}
+            <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: "24px" }}>
+              <Link to="/forgot-password" className="forgot-link">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <circle cx="12" cy="12" r="10"/>
+                  <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+                </svg>
+                Forgot password?
+              </Link>
             </div>
 
             <button type="submit" className="cta-btn">

@@ -9,6 +9,7 @@ import {
   deleteItem,
   restoreItem,
   permanentDeleteItem,
+  emptyTrash,
 } from '../controllers/itemController.js';
 import { protect } from '../middleware/authMiddleware.js';
 
@@ -29,5 +30,6 @@ router.put('/:id/restore', protect, restoreItem);
 router.delete('/:id/permanent', protect, permanentDeleteItem);
 
 router.post('/:id/verify', protect, verifyItemPassword);
+router.delete('/trash/empty', protect, emptyTrash);
 
 export default router;

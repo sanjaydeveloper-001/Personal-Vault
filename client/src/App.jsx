@@ -12,17 +12,30 @@ import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
 import { Toaster } from "react-hot-toast";
 import PublicFilesPage from "./pages/PublicFilesPage";
+import HelpCenter from "./pages/HelpCenter";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import TermsConditions from "./pages/TermsConditions";
+import ForgotPassword from "./pages/ForgotPassword";
+import SecurityQuestions from "./pages/SecurityQuestions";
 
 function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <Toaster position="top-right" />
+        <Toaster position="top-right"  
+          containerStyle={{
+          zIndex: 99999,
+          }}
+        />
         <Routes>
           {/* Public routes */}
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
+          <Route path="/privacy" element={<PrivacyPolicy />} />
+          <Route path="/terms" element={<TermsConditions />} />
+          <Route path="/forgot-password" element={<ForgotPassword/>} />
+          <Route path="/security-questions" element={<SecurityQuestions />} /> {/* protect this */}
 
           {/* Protected routes with sidebar layout */}
           <Route element={<ProtectedLayout />}>
@@ -32,6 +45,7 @@ function App() {
             <Route path="/settings" element={<Settings />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/public" element={<PublicFilesPage />} />
+            <Route path="/help" element={<HelpCenter />} />
           </Route>
 
           <Route path="/404" element={<NotFound />} />

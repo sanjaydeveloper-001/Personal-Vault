@@ -23,4 +23,6 @@ export const itemService = {
   getTrashItems: () => api.get("/items/trash"),
   restoreItem: (id) => api.put(`/items/${id}/restore`),
   permanentDelete: (id) => api.delete(`/items/${id}/permanent`),
+
+  emptyTrash: () => api.delete('/items/trash/empty'),
 };

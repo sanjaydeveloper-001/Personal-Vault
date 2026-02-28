@@ -43,7 +43,7 @@ export const AuthProvider = ({ children }) => {
       const { data } = await api.post("/auth/register", { username, password });
       setUser(data);
       toast.success("Registered successfully");
-      navigate("/dashboard");
+      navigate("/security-questions");
     } catch (error) {
       toast.error(error.response?.data?.message || "Registration failed");
     }

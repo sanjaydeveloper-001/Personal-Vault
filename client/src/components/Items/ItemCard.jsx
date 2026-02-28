@@ -103,35 +103,79 @@ const typeIcon = { note: "📝", link: "🔗", file: "📁" };
 const typeWrap = { note: "icon-note", link: "icon-link", file: "icon-file" };
 const typeChip = { note: "chip-note", link: "chip-link", file: "chip-file" };
 
-const ItemCard = ({ item, onDelete, onUpdate }) => {
-  const [showPasswordModal, setShowPasswordModal] = useState(false);
-  const [showDetailModal,   setShowDetailModal]   = useState(false);
-  const [showEditModal,     setShowEditModal]      = useState(false);
-  const [unlockedItem,      setUnlockedItem]       = useState(null);
-  const [showConfirm,       setShowConfirm]        = useState(false);
+/*
+  pendingAction: what to do after password verification succeeds
+    "view"   → open ItemDetailModal
+    "edit"   → open EditItemModal  
+    "delete" → show confirm overlay
+*/
 
-  const handleClick = () => {
+const ItemCard = ({ item, onDelete, onUpdate }) => {
+  const [pendingAction,   setPendingAction]   = useState(null);
+  const [showPassModal,   setShowPassModal]   = useState(false);
+  const [showDetailModal, setShowDetailModal] = useState(false);
+  const [showEditModal,   setShowEditModal]   = useState(false);
+  const [showConfirm,     setShowConfirm]     = useState(false);
+  const [unlockedItem,    setUnlockedItem]    = useState(null);
+
+  /* ── Trigger password gate ── */
+  const requirePassword = (action) => {
+    setPendingAction(action);
+    setShowPassModal(true);
+  };
+
+  /* ── Card body click → view ── */
+  const handleCardClick = () => {
     if (item.hasPassword) {
-      setShowPasswordModal(true);
+      requirePassword("view");
     } else {
       setUnlockedItem(item);
       setShowDetailModal(true);
     }
   };
 
-  const handlePasswordSubmit = async (password) => {
-    try {
-      const { data } = await itemService.verifyPassword(item._id, password);
-      setUnlockedItem({ ...item, ...data });
-      setShowDetailModal(true);
-    } catch (error) {
-      toast.error(error.response?.data?.message || "Incorrect password");
+  /* ── Edit pencil click ── */
+  const handleEditClick = (e) => {
+    e.stopPropagation();
+    if (item.hasPassword) {
+      requirePassword("edit");
+    } else {
+      setUnlockedItem(item);
+      setShowEditModal(true);
     }
   };
 
-  const handleEditClick = (e) => {
+  /* ── Trash icon click ── */
+  const handleDeleteClick = (e) => {
     e.stopPropagation();
-    setShowEditModal(true);
+    if (item.hasPassword) {
+      requirePassword("delete");
+    } else {
+      setShowConfirm(true);
+    }
+  };
+
+  /* ── Password verified — dispatch to the right action ── */
+  const handlePasswordSubmit = async (password) => {
+    try {
+      const { data } = await itemService.verifyPassword(item._id, password);
+      const unlocked = { ...item, ...data };
+      setUnlockedItem(unlocked);
+      setShowPassModal(false);
+
+      if (pendingAction === "view") {
+        setShowDetailModal(true);
+      } else if (pendingAction === "edit") {
+        setShowEditModal(true);
+      } else if (pendingAction === "delete") {
+        setShowConfirm(true);
+      }
+
+      setPendingAction(null);
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Incorrect password");
+      // keep modal open so user can retry — don't close
+    }
   };
 
   const confirmDelete = async () => {
@@ -152,7 +196,7 @@ const ItemCard = ({ item, onDelete, onUpdate }) => {
     <>
       <style>{STYLES}</style>
 
-      <div className={`item-card ${item.type}`} onClick={handleClick}>
+      <div className={`item-card ${item.type}`} onClick={handleCardClick}>
 
         {/* ── Confirm delete overlay ── */}
         {showConfirm && (
@@ -189,7 +233,7 @@ const ItemCard = ({ item, onDelete, onUpdate }) => {
                 <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
               </svg>
             </button>
-            <button className="action-btn del" title="Delete" onClick={() => setShowConfirm(true)}>
+            <button className="action-btn del" title="Delete" onClick={handleDeleteClick}>
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <polyline points="3 6 5 6 21 6"/>
                 <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
@@ -208,7 +252,11 @@ const ItemCard = ({ item, onDelete, onUpdate }) => {
         {item.type === "file" && item.metadata?.originalName && !item.hasPassword && (
           <div className="preview-text" style={{ color: "#f472b6" }}>
             📎 {item.metadata.originalName}
-            {item.metadata.size ? ` · ${item.metadata.size < 1048576 ? `${(item.metadata.size/1024).toFixed(1)} KB` : `${(item.metadata.size/1048576).toFixed(1)} MB`}` : ""}
+            {item.metadata.size
+              ? ` · ${item.metadata.size < 1048576
+                  ? `${(item.metadata.size / 1024).toFixed(1)} KB`
+                  : `${(item.metadata.size / 1048576).toFixed(1)} MB`}`
+              : ""}
           </div>
         )}
         {item.hasPassword && (
@@ -241,11 +289,12 @@ const ItemCard = ({ item, onDelete, onUpdate }) => {
         <div className="view-hint">Click to view</div>
       </div>
 
-      {/* ── Modals ── */}
+      {/* ── Single PasswordPromptModal, reused for all three actions ── */}
       <PasswordPromptModal
-        isOpen={showPasswordModal}
-        onClose={() => setShowPasswordModal(false)}
+        isOpen={showPassModal}
+        onClose={() => { setShowPassModal(false); setPendingAction(null); }}
         onSubmit={handlePasswordSubmit}
+        action={pendingAction}
       />
 
       <ItemDetailModal
@@ -256,8 +305,8 @@ const ItemCard = ({ item, onDelete, onUpdate }) => {
 
       <EditItemModal
         isOpen={showEditModal}
-        onClose={() => setShowEditModal(false)}
-        item={item}
+        onClose={() => { setShowEditModal(false); setUnlockedItem(null); }}
+        item={unlockedItem || item}
         onItemUpdated={() => { onUpdate?.(); onDelete?.(); }}
       />
     </>

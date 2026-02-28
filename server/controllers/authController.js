@@ -88,3 +88,24 @@ export const logoutUser = (req, res) => {
 export const getProfile = (req, res) => {
   res.json(req.user);
 };
+
+export const updateUsername = async (req, res) => {
+  const { newUsername } = req.body;
+  if (!newUsername) {
+    return res.status(400).json({ message: 'New username is required' });
+  }
+
+  const existingUser = await User.findOne({ username: newUsername });
+  if (existingUser) {
+    return res.status(400).json({ message: 'Username already taken' });
+  }
+
+  const user = req.user;
+  user.username = newUsername;
+  await user.save();
+
+  res.json({ 
+    message: 'Username updated successfully',
+    username: user.username 
+  });
+};

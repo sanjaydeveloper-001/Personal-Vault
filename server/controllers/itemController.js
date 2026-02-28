@@ -152,3 +152,30 @@ export const permanentDeleteItem = async (req, res) => {
   await item.deleteOne(); 
   res.json({ message: 'Item permanently deleted' });
 };
+
+// @desc    Permanently delete all items in trash
+// @route   DELETE /api/items/trash/empty
+// @access  Private
+export const emptyTrash = async (req, res) => {
+  const items = await Item.find({ user: req.user._id, deleted: true });
+
+  if (items.length === 0) {
+    return res.status(404).json({ message: 'Trash is already empty' });
+  }
+
+  // For each file-type item, delete from Cloudinary
+  const deletePromises = items.map(async (item) => {
+    if (item.type === 'file' && item.metadata?.public_id) {
+      try {
+        await cloudinary.uploader.destroy(item.metadata.public_id);
+      } catch (error) {
+        console.error(`Cloudinary deletion error for ${item.metadata.public_id}:`, error);
+        // Continue with DB deletion even if Cloudinary fails
+      }
+    }
+    return item.deleteOne();
+  });
+
+  await Promise.all(deletePromises);
+  res.json({ message: 'Trash emptied successfully' });
+};
