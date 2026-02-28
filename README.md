@@ -1,4 +1,4 @@
-# 🔐 VaultNotes – Sovereign Digital Vault
+# 🔐 VaultNotes – Digital Vault
 
 > Your encrypted sanctuary for notes, links & files — with zero email friction, per-item passwords, and permanent shareable links.
 
