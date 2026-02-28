@@ -39,10 +39,10 @@ export const registerUser = async (req, res) => {
     }
 
     const token = generateToken(user._id);
-    res.cookie('token', token, {
+    res.cookie("token", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+      secure: true,        // FORCE TRUE on Vercel HTTPS
+      sameSite: "None",    // REQUIRED cross domain
       maxAge: 30 * 24 * 60 * 60 * 1000,
     });
 
@@ -61,10 +61,10 @@ export const loginUser = async (req, res) => {
   const user = await User.findOne({ username });
   if (user && (await user.matchPassword(password))) {
     const token = generateToken(user._id);
-    res.cookie('token', token, {
+    res.cookie("token", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'None',
+      secure: true,        // FORCE TRUE on Vercel HTTPS
+      sameSite: "None",    // REQUIRED cross domain
       maxAge: 30 * 24 * 60 * 60 * 1000,
     });
 

@@ -19,10 +19,12 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 // CORS
-app.use(cors({
-  origin: process.env.CLIENT_URL || 'https://vaultnotesclient.vercel.app',
-  credentials: true,
-}));
+app.use(
+  cors({
+    origin: "https://vaultnotesclient.vercel.app",
+    credentials: true,
+  })
+);
 
 // Routes
 import authRoutes from './routes/auth.js';
