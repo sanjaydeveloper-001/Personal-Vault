@@ -274,10 +274,6 @@ const Sidebar = ({ isOpen, onClose }) => {
               </div>
             </div>
           </div>
-          <button className="logout-btn" onClick={handleLogout}>
-            <FiLogOut size={14} />
-            <span>Sign Out</span>
-          </button>
         </div>
       </aside>
     </>

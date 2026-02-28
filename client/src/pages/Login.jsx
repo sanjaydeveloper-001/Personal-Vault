@@ -1,21 +1,30 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
+import VaultCaptcha from "../components/Layout/VaultCaptcha";
 
 const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPass, setShowPass] = useState(false);
   const [loading, setLoading] = useState(false);
+  const captchaRef = useRef(null);
   const { login } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Verify captcha only on submit — captcha image stays stable
+    const captchaOk = captchaRef.current.verify();
+    if (!captchaOk) return; // wrong answer — stays on page, same captcha
+
     setLoading(true);
     try {
       await login(username, password);
     } finally {
       setLoading(false);
+      // Reset captcha after a login attempt (success or fail)
+      captchaRef.current.reset();
     }
   };
 
@@ -29,13 +38,11 @@ const Login = () => {
             linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
           background-size: 40px 40px;
         }
-
         .auth-card {
           background: rgba(255,255,255,0.03);
           border: 1px solid rgba(255,255,255,0.08);
           backdrop-filter: blur(12px);
         }
-
         .auth-input {
           width: 100%;
           background: rgba(255,255,255,0.05);
@@ -63,7 +70,6 @@ const Login = () => {
           letter-spacing: 0.04em;
           text-transform: uppercase;
         }
-
         .cta-btn {
           background: linear-gradient(135deg, #f59e0b, #d97706);
           transition: all 0.3s ease;
@@ -85,34 +91,19 @@ const Login = () => {
           box-shadow: 0 8px 30px rgba(245,158,11,0.35);
         }
         .cta-btn:active:not(:disabled) { transform: translateY(0); }
-        .cta-btn:disabled {
-          opacity: 0.75;
-          cursor: not-allowed;
-          transform: none !important;
-        }
+        .cta-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; }
 
         .back-btn {
-          display: inline-flex;
-          align-items: center;
-          gap: 6px;
-          color: #6b7280;
-          font-size: 0.85rem;
-          transition: color 0.2s;
-          text-decoration: none;
+          display: inline-flex; align-items: center; gap: 6px;
+          color: #6b7280; font-size: 0.85rem;
+          transition: color 0.2s; text-decoration: none;
         }
         .back-btn:hover { color: #fbbf24; }
 
         .eye-btn {
-          position: absolute;
-          right: 14px;
-          top: 50%;
-          transform: translateY(-50%);
-          background: none;
-          border: none;
-          color: #4b5563;
-          cursor: pointer;
-          padding: 0;
-          transition: color 0.2s;
+          position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
+          background: none; border: none; color: #4b5563;
+          cursor: pointer; padding: 0; transition: color 0.2s;
         }
         .eye-btn:hover { color: #9ca3af; }
 
@@ -121,16 +112,10 @@ const Login = () => {
           background: linear-gradient(90deg, transparent, rgba(251,191,36,0.3), transparent);
           margin: 24px 0;
         }
-
         .forgot-link {
-          display: inline-flex;
-          align-items: center;
-          gap: 5px;
-          color: #4b5563;
-          font-size: 0.8rem;
-          text-decoration: none;
-          transition: color 0.2s;
-          letter-spacing: 0.01em;
+          display: inline-flex; align-items: center; gap: 5px;
+          color: #4b5563; font-size: 0.8rem;
+          text-decoration: none; transition: color 0.2s; letter-spacing: 0.01em;
         }
         .forgot-link:hover { color: #fbbf24; }
 
@@ -140,29 +125,22 @@ const Login = () => {
         }
         .fade-up { animation: fadeUp 0.5s ease forwards; }
 
-        /* Spinner */
-        @keyframes spin {
-          to { transform: rotate(360deg); }
-        }
+        @keyframes spin { to { transform: rotate(360deg); } }
         .spinner {
-          width: 16px;
-          height: 16px;
+          width: 16px; height: 16px;
           border: 2px solid rgba(255,255,255,0.35);
           border-top-color: white;
           border-radius: 50%;
           animation: spin 0.7s linear infinite;
           flex-shrink: 0;
         }
-
-        /* Shimmer sweep on loading button */
         @keyframes shimmer {
           0% { transform: translateX(-100%); }
           100% { transform: translateX(200%); }
         }
         .cta-btn.loading::after {
           content: '';
-          position: absolute;
-          inset: 0;
+          position: absolute; inset: 0;
           background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.15) 50%, transparent 100%);
           animation: shimmer 1.2s ease-in-out infinite;
         }
@@ -173,7 +151,6 @@ const Login = () => {
         style={{ background: "radial-gradient(circle, rgba(251,191,36,0.05) 0%, transparent 70%)" }} />
 
       <div className="relative z-10 w-full max-w-md fade-up">
-        {/* Back button */}
         <div className="mb-6">
           <Link to="/" className="back-btn">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -184,7 +161,6 @@ const Login = () => {
         </div>
 
         <div className="auth-card rounded-2xl p-8">
-          {/* Logo */}
           <div className="flex items-center gap-2 mb-8">
             <div className="w-8 h-8 rounded-lg flex items-center justify-center"
               style={{ background: "linear-gradient(135deg, #f59e0b, #d97706)" }}>
@@ -243,7 +219,6 @@ const Login = () => {
               </div>
             </div>
 
-            {/* Forgot password link */}
             <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: "24px" }}>
               <Link to="/forgot-password" className="forgot-link">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -254,13 +229,13 @@ const Login = () => {
               </Link>
             </div>
 
+            {/* Captcha — stable until refresh clicked or reset() called */}
+            <VaultCaptcha ref={captchaRef} />
+
             <button type="submit" className={`cta-btn${loading ? " loading" : ""}`} disabled={loading}>
               <span style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "8px" }}>
                 {loading ? (
-                  <>
-                    <span className="spinner" />
-                    Unlocking…
-                  </>
+                  <><span className="spinner" />Unlocking…</>
                 ) : (
                   <>
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -286,7 +261,6 @@ const Login = () => {
           </p>
         </div>
 
-        {/* Trust note */}
         <p style={{ textAlign: "center", fontSize: "0.75rem", color: "#374151", marginTop: "20px" }}>
           🔒 Your data is stored locally and never shared.
         </p>

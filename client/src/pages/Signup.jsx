@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
+import VaultCaptcha from "../components/Layout/VaultCaptcha";
 
 const Signup = () => {
   const [username, setUsername] = useState("");
@@ -10,6 +11,7 @@ const Signup = () => {
   const [showConfirm, setShowConfirm] = useState(false);
   const [agreed, setAgreed] = useState(false);
   const [loading, setLoading] = useState(false);
+  const captchaRef = useRef(null);
   const { register } = useAuth();
 
   const handleSubmit = async (e) => {
@@ -22,11 +24,17 @@ const Signup = () => {
       alert("Please agree to the Privacy Policy and Terms & Conditions");
       return;
     }
+
+    // Verify captcha only on submit — captcha image stays stable
+    const captchaOk = captchaRef.current.verify();
+    if (!captchaOk) return; // wrong — stays on page, same captcha
+
     setLoading(true);
     try {
       await register(username, password);
     } finally {
       setLoading(false);
+      captchaRef.current.reset();
     }
   };
 
@@ -98,7 +106,7 @@ const Signup = () => {
           box-shadow: 0 8px 30px rgba(245,158,11,0.35);
         }
         .cta-btn:active:not(:disabled) { transform: translateY(0); }
-        .cta-btn:disabled { opacity: 0.55; cursor: not-allowed; transform: none !important; }
+        .cta-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; }
 
         .back-btn {
           display: inline-flex; align-items: center; gap: 6px;
@@ -116,8 +124,7 @@ const Signup = () => {
 
         .agree-row {
           display: flex; align-items: flex-start; gap: 10px;
-          margin-bottom: 22px;
-          cursor: pointer;
+          margin-bottom: 22px; cursor: pointer;
         }
         .agree-box {
           width: 18px; height: 18px; border-radius: 5px; flex-shrink: 0;
@@ -129,12 +136,8 @@ const Signup = () => {
           background: linear-gradient(135deg, #f59e0b, #d97706);
           border-color: #f59e0b;
         }
-        .agree-text {
-          font-size: 0.82rem; color: #9ca3af; line-height: 1.5;
-        }
-        .agree-text a {
-          color: #fbbf24; text-decoration: none; font-weight: 500;
-        }
+        .agree-text { font-size: 0.82rem; color: #9ca3af; line-height: 1.5; }
+        .agree-text a { color: #fbbf24; text-decoration: none; font-weight: 500; }
         .agree-text a:hover { text-decoration: underline; }
 
         @keyframes fadeUp {
@@ -143,29 +146,22 @@ const Signup = () => {
         }
         .fade-up { animation: fadeUp 0.5s ease forwards; }
 
-        /* Spinner */
-        @keyframes spin {
-          to { transform: rotate(360deg); }
-        }
+        @keyframes spin { to { transform: rotate(360deg); } }
         .spinner {
-          width: 16px;
-          height: 16px;
+          width: 16px; height: 16px;
           border: 2px solid rgba(255,255,255,0.35);
           border-top-color: white;
           border-radius: 50%;
           animation: spin 0.7s linear infinite;
           flex-shrink: 0;
         }
-
-        /* Shimmer sweep on loading button */
         @keyframes shimmer {
           0% { transform: translateX(-100%); }
           100% { transform: translateX(200%); }
         }
         .cta-btn.loading::after {
           content: '';
-          position: absolute;
-          inset: 0;
+          position: absolute; inset: 0;
           background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.15) 50%, transparent 100%);
           animation: shimmer 1.2s ease-in-out infinite;
         }
@@ -176,7 +172,6 @@ const Signup = () => {
         style={{ background: "radial-gradient(circle, rgba(251,191,36,0.05) 0%, transparent 70%)" }} />
 
       <div className="relative z-10 w-full max-w-md fade-up">
-        {/* Back */}
         <div className="mb-6">
           <Link to="/" className="back-btn">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -187,7 +182,6 @@ const Signup = () => {
         </div>
 
         <div className="auth-card rounded-2xl p-8">
-          {/* Logo */}
           <div className="flex items-center gap-2 mb-8">
             <div className="w-8 h-8 rounded-lg flex items-center justify-center"
               style={{ background: "linear-gradient(135deg, #f59e0b, #d97706)" }}>
@@ -209,14 +203,12 @@ const Signup = () => {
           </p>
 
           <form onSubmit={handleSubmit}>
-            {/* Username */}
             <div className="mb-5">
               <label className="auth-label">Username</label>
               <input className="auth-input" type="text" placeholder="Choose a username"
                 value={username} onChange={(e) => setUsername(e.target.value)} required disabled={loading} />
             </div>
 
-            {/* Password */}
             <div className="mb-5">
               <label className="auth-label">Password</label>
               <div style={{ position: "relative" }}>
@@ -234,7 +226,7 @@ const Signup = () => {
               {password.length > 0 && (
                 <div style={{ marginTop: "8px" }}>
                   <div style={{ display: "flex", gap: "4px", marginBottom: "4px" }}>
-                    {[1, 2, 3].map(i => (
+                    {[1,2,3].map(i => (
                       <div key={i} style={{
                         height: "3px", flex: 1, borderRadius: "2px",
                         background: i <= strength ? strengthColor[strength] : "rgba(255,255,255,0.1)",
@@ -247,7 +239,6 @@ const Signup = () => {
               )}
             </div>
 
-            {/* Confirm password */}
             <div className="mb-6">
               <label className="auth-label">Confirm Password</label>
               <div style={{ position: "relative" }}>
@@ -268,7 +259,6 @@ const Signup = () => {
               )}
             </div>
 
-            {/* Agree checkbox */}
             <div
               className={`agree-row${agreed ? " checked" : ""}`}
               onClick={() => !loading && setAgreed(!agreed)}
@@ -289,13 +279,13 @@ const Signup = () => {
               </p>
             </div>
 
-            <button type="submit" className={`cta-btn${loading ? " loading" : ""}`} disabled={!agreed || loading}>
+            {/* Captcha — stable until refresh clicked or reset() called */}
+            <VaultCaptcha ref={captchaRef} />
+
+            <button type="submit" className={`cta-btn${loading ? " loading" : ""}`} disabled={loading}>
               <span style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "8px" }}>
                 {loading ? (
-                  <>
-                    <span className="spinner" />
-                    Creating vault…
-                  </>
+                  <><span className="spinner" />Creating vault…</>
                 ) : (
                   "Create Account"
                 )}
