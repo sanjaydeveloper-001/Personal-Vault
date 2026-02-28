@@ -145,7 +145,7 @@ const Dashboard = () => {
         setStats({ total: data.length, notes, links, files });
         setRecent(data.slice(0, 5));
       } catch (error) {
-        toast.error(error);
+        // toast.error("error?.message");
       } finally {
         setLoading(false);
       }

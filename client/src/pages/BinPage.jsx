@@ -73,7 +73,7 @@ const BinPage = () => {
       const { data } = await itemService.getTrashItems();
       setDeletedItems(data);
     } catch (error) {
-      toast.error(error);
+      // toast.error(error);
       // console.error(error);
     } finally {
       setLoading(false);
