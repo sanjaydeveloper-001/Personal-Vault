@@ -17,25 +17,28 @@ import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsConditions from "./pages/TermsConditions";
 import ForgotPassword from "./pages/ForgotPassword";
 import SecurityQuestions from "./pages/SecurityQuestions";
+import LoadingPage from "./pages/LoadingPage";
 
 function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <Toaster position="top-right"  
-          containerStyle={{
-          zIndex: 99999,
-          }}
+        <Toaster
+          position="top-right"
+          containerStyle={{ zIndex: 99999 }}
         />
         <Routes>
+          {/* Root — checks auth then redirects to /dashboard or /home */}
+          <Route path="/" element={<LoadingPage />} />
+
           {/* Public routes */}
-          <Route path="/" element={<Home />} />
+          <Route path="/home" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/privacy" element={<PrivacyPolicy />} />
           <Route path="/terms" element={<TermsConditions />} />
-          <Route path="/forgot-password" element={<ForgotPassword/>} />
-          <Route path="/security-questions" element={<SecurityQuestions />} /> {/* protect this */}
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/security-questions" element={<SecurityQuestions />} />
 
           {/* Protected routes with sidebar layout */}
           <Route element={<ProtectedLayout />}>
