@@ -20,7 +20,7 @@ app.use(cookieParser());
 
 // CORS
 app.use(cors({
-  origin: process.env.CLIENT_URL,
+  origin: process.env.CLIENT_URL || 'https://vaultnotesclient.vercel.app',
   credentials: true,
 }));
 
