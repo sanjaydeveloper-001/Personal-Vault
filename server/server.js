@@ -21,7 +21,7 @@ app.use(cookieParser());
 // CORS
 app.use(
   cors({
-    origin: "https://vaultnotesclient.vercel.app",
+    origin: "https://vaultnotes.josan.tech",
     credentials: true,
   })
 );
