@@ -20,10 +20,7 @@ app.use(cookieParser());
 
 // CORS
 app.use(
-  cors({
-    origin: "https://vaultnotes.josan.tech",
-    credentials: true,
-  })
+  cors()
 );
 
 // Routes
